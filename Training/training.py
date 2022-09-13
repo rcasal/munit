@@ -93,5 +93,6 @@ def train(gpu,args):
             iterations += 1
            
             if iterations >= args.max_iter:
-                dist.destroy_process_group()
+                if should_distribute(args.world_size): 
+                    dist.destroy_process_group()
                 sys.exit('Finish training')
