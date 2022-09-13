@@ -28,10 +28,6 @@ def train(gpu,args):
         dist.init_process_group(backend=args.backend, init_method='env://', world_size=args.world_size, rank=rank)
 
     trainer = MUNIT_Trainer(args)
-    # recover from checkpoint
-    iterations = 0
-    if(args.continue_training and os.path.exists(args.saved_model_dir)):
-        iterations = trainer.resume(args.saved_model_dir, args)
 
     #setup data
     train_loader_a = get_data_loader_folder(args, os.path.join(args.base_data_dir, args.input_data_dir),
@@ -60,8 +56,9 @@ def train(gpu,args):
         for i in range(args.display_size)]).cuda(args.gpu)
     
     # # recover from checkpoint
-    # if(args.continue_training and os.path.exists(args.saved_model_dir)):
-    #     iterations = trainer.module.resume(args.saved_model_dir, args) if isDDP(trainer) else trainer.resume(args.saved_model_dir, args)
+    iterations = 0
+    if(args.continue_training and os.path.exists(args.saved_model_dir)):
+        iterations = trainer.module.resume(args.saved_model_dir, args) if isDDP(trainer) else trainer.resume(args.saved_model_dir, args)
 
     while True:
 
@@ -96,4 +93,5 @@ def train(gpu,args):
             iterations += 1
            
             if iterations >= args.max_iter:
+                dist.destroy_process_group()
                 sys.exit('Finish training')
