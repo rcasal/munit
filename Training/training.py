@@ -91,7 +91,7 @@ def train(gpu,args):
             trainer.module.update_learning_rate() if isDDP(trainer) else trainer.update_learning_rate()
 
             iterations += 1
-           
+            print(rank)
             if iterations >= args.max_iter:
                 if should_distribute(args.world_size): 
                     dist.destroy_process_group()
