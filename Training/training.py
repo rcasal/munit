@@ -87,7 +87,11 @@ def train(gpu,args):
 
             # Save network weights
             if (iterations + 1) % args.save_freq == 0:
-                trainer.module.save(args.saved_model_dir, iterations) if isDDP(trainer) else trainer.save(args.saved_model_dir, iterations)
+                if isDDP(trainer):
+                    if rank == 0:
+                        trainer.module.save(args.saved_model_dir, iterations) 
+                else: 
+                    trainer.save(args.saved_model_dir, iterations)
 
             trainer.module.update_learning_rate() if isDDP(trainer) else trainer.update_learning_rate()
 
