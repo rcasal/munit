@@ -43,14 +43,12 @@ def train(gpu,args):
     output_path = args.base_results_dir
 
     train_writer = tensorboardX.SummaryWriter(os.path.join(output_path + "/Loss", model_name))
-  
-    # resume training
-    iterations = 0
-    if(args.continue_training and os.path.exists(args.saved_model_dir)):
-        iterations = trainer.resume(args.saved_model_dir, args)
-    
-    # Models to device and DDP setting
-    trainer = trainer.cuda(args.gpu) 
+
+    # # resume training
+    # iterations = 0
+    # if(args.continue_training and os.path.exists(args.saved_model_dir)):
+    #     iterations = trainer.resume(args.saved_model_dir, args)
+
     if is_distributed():
         trainer = nn.parallel.DistributedDataParallel(trainer, device_ids=[args.gpu])
     
@@ -60,10 +58,10 @@ def train(gpu,args):
     train_display_images_b = torch.stack([train_loader_b.dataset[i]
         for i in range(args.display_size)]).cuda(args.gpu)
     
-    # # recover from checkpoint
-    # iterations = 0
-    # if(args.continue_training and os.path.exists(args.saved_model_dir)):
-    #     iterations = trainer.module.resume(args.saved_model_dir, args) if isDDP(trainer) else trainer.resume(args.saved_model_dir, args)
+    # recover from checkpoint
+    iterations = 0
+    if(args.continue_training and os.path.exists(args.saved_model_dir)):
+        iterations = trainer.module.resume(args.saved_model_dir, args) if isDDP(trainer) else trainer.resume(args.saved_model_dir, args)
 
     while True:
 
