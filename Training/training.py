@@ -43,15 +43,14 @@ def train(gpu,args):
     output_path = args.base_results_dir
 
     train_writer = tensorboardX.SummaryWriter(os.path.join(output_path + "/Loss", model_name))
-
-    
-    # Models to device and DDP setting
-    trainer = trainer.cuda(args.gpu) 
+  
     # resume training
     iterations = 0
     if(args.continue_training and os.path.exists(args.saved_model_dir)):
         iterations = trainer.resume(args.saved_model_dir, args)
-
+    
+    # Models to device and DDP setting
+    trainer = trainer.cuda(args.gpu) 
     if is_distributed():
         trainer = nn.parallel.DistributedDataParallel(trainer, device_ids=[args.gpu])
     
@@ -79,7 +78,7 @@ def train(gpu,args):
             # Dump training stats in log file
             if (iterations + 1) % args.print_freq == 0:
                 print(f"Iteration: {(iterations + 1):08d}/{args.max_iter}")
-                print(f"rank: {rank}")
+                #print(f"rank: {rank}")
                 write_loss(iterations, trainer, train_writer)
 
             # Write images
