@@ -188,21 +188,25 @@ class MUNIT_Trainer(nn.Module):
         if self.generator_scheduler is not None:
             self.generator_scheduler.step()
 
-    def resume(self, checkpoint_dir, args):
+    def resume(self, checkpoint_dir, args, ddp_rank=False):
         """function to resume training"""
+        if ddp_rank is None:
+            map_location = None
+        else:
+            map_location = {'cuda:%d' % 0: 'cuda:%d' % ddp_rank}
         # Load generators
         last_model_name = get_model_list(checkpoint_dir, "gen")
-        state_dict = torch.load(last_model_name)
+        state_dict = torch.load(last_model_name, map_location=map_location)
         self.generator_a.load_state_dict(state_dict['a'])
         self.generator_b.load_state_dict(state_dict['b'])
         iterations = int(last_model_name[-11:-3])
         # Load discriminators
         last_model_name = get_model_list(checkpoint_dir, "dis")
-        state_dict = torch.load(last_model_name)
+        state_dict = torch.load(last_model_name, map_location=map_location)
         self.dicrimininator_a.load_state_dict(state_dict['a'])
         self.discriminator_b.load_state_dict(state_dict['b'])
         # Load optimizers
-        state_dict = torch.load(os.path.join(checkpoint_dir, 'optimizer.pt'))
+        state_dict = torch.load(os.path.join(checkpoint_dir, 'optimizer.pt'), map_location=map_location)
         self.discrimator_optimizer.load_state_dict(state_dict['dis'])
         self.generator_optimizer.load_state_dict(state_dict['gen'])
         # Reinitilize schedulers

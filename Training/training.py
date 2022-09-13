@@ -58,7 +58,10 @@ def train(gpu,args):
     # recover from checkpoint
     iterations = 0
     if(args.continue_training and os.path.exists(args.saved_model_dir)):
-        iterations = trainer.module.resume(args.saved_model_dir, args) if isDDP(trainer) else trainer.resume(args.saved_model_dir, args)
+        if isDDP(trainer):
+            iterations = trainer.module.resume(args.saved_model_dir, args)  
+        else: 
+            iterations = trainer.resume(args.saved_model_dir, args)
 
     while True:
 
@@ -89,6 +92,9 @@ def train(gpu,args):
             if (iterations + 1) % args.save_freq == 0:
                 if isDDP(trainer):
                     if rank == 0:
+                        # All processes should see same parameters as they all start from same
+                        # random parameters and gradients are synchronized in backward passes.
+                        # Therefore, saving it in one process is sufficient.
                         trainer.module.save(args.saved_model_dir, iterations) 
                 else: 
                     trainer.save(args.saved_model_dir, iterations)
