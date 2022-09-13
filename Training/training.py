@@ -73,6 +73,7 @@ def train(gpu,args):
             # Dump training stats in log file
             if (iterations + 1) % args.print_freq == 0:
                 print(f"Iteration: {(iterations + 1):08d}/{args.max_iter}")
+                print(f"rank: {rank}")
                 write_loss(iterations, trainer, train_writer)
 
             # Write images
@@ -91,7 +92,7 @@ def train(gpu,args):
             trainer.module.update_learning_rate() if isDDP(trainer) else trainer.update_learning_rate()
 
             iterations += 1
-            print(rank)
+            
             if iterations >= args.max_iter:
                 if should_distribute(args.world_size): 
                     dist.destroy_process_group()
