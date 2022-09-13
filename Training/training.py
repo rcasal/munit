@@ -44,11 +44,8 @@ def train(gpu,args):
 
     train_writer = tensorboardX.SummaryWriter(os.path.join(output_path + "/Loss", model_name))
 
-    # # resume training
-    # iterations = 0
-    # if(args.continue_training and os.path.exists(args.saved_model_dir)):
-    #     iterations = trainer.resume(args.saved_model_dir, args)
-
+    # Models to device and DDP setting
+    trainer = trainer.cuda(args.gpu) 
     if is_distributed():
         trainer = nn.parallel.DistributedDataParallel(trainer, device_ids=[args.gpu])
     
