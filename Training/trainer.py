@@ -194,6 +194,16 @@ class MUNIT_Trainer(nn.Module):
             map_location = None
         else:
             map_location = {'cuda:%d' % 0: 'cuda:%d' % ddp_rank}
+        
+        # Load optimizers
+        state_dict = torch.load(os.path.join(checkpoint_dir, 'optimizer.pt'), map_location=map_location)
+        self.discrimator_optimizer.load_state_dict(state_dict['dis'])
+        self.generator_optimizer.load_state_dict(state_dict['gen'])
+        # Reinitilize schedulers
+        self.discirimiator_scheduler = get_scheduler(self.discrimator_optimizer, args, iterations)
+        self.generator_scheduler = get_scheduler(self.generator_optimizer, args, iterations)
+        print(f'Resume from iteration {iterations:08d}')
+
         # Load generators
         last_model_name = get_model_list(checkpoint_dir, "gen")
         state_dict = torch.load(last_model_name, map_location=map_location)
@@ -205,14 +215,6 @@ class MUNIT_Trainer(nn.Module):
         state_dict = torch.load(last_model_name, map_location=map_location)
         self.dicrimininator_a.load_state_dict(state_dict['a'])
         self.discriminator_b.load_state_dict(state_dict['b'])
-        # Load optimizers
-        state_dict = torch.load(os.path.join(checkpoint_dir, 'optimizer.pt'), map_location=map_location)
-        self.discrimator_optimizer.load_state_dict(state_dict['dis'])
-        self.generator_optimizer.load_state_dict(state_dict['gen'])
-        # Reinitilize schedulers
-        self.discirimiator_scheduler = get_scheduler(self.discrimator_optimizer, args, iterations)
-        self.generator_scheduler = get_scheduler(self.generator_optimizer, args, iterations)
-        print(f'Resume from iteration {iterations:08d}')
         return iterations
 
     def save(self, snapshot_dir, iterations):
