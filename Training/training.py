@@ -44,6 +44,10 @@ def train(gpu,args):
 
     train_writer = tensorboardX.SummaryWriter(os.path.join(output_path + "/Loss", model_name))
 
+    # resume training
+    iterations = 0
+    if(args.continue_training and os.path.exists(args.saved_model_dir)):
+        iterations = trainer.resume(args.saved_model_dir, args)
     # Models to device and DDP setting
     trainer = trainer.cuda(args.gpu) 
     if is_distributed():
@@ -56,9 +60,9 @@ def train(gpu,args):
         for i in range(args.display_size)]).cuda(args.gpu)
     
     # # recover from checkpoint
-    iterations = 0
-    if(args.continue_training and os.path.exists(args.saved_model_dir)):
-        iterations = trainer.module.resume(args.saved_model_dir, args) if isDDP(trainer) else trainer.resume(args.saved_model_dir, args)
+    # iterations = 0
+    # if(args.continue_training and os.path.exists(args.saved_model_dir)):
+    #     iterations = trainer.module.resume(args.saved_model_dir, args) if isDDP(trainer) else trainer.resume(args.saved_model_dir, args)
 
     while True:
 
