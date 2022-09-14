@@ -4,7 +4,7 @@ import sys
 import torch
 import torch.distributed as dist
 import tensorboardX
-
+import gc
 from Data_Utils.data_utils import *
 from Training.trainer import *
 from Utils.util_functions import Timer, should_distribute
@@ -63,6 +63,8 @@ def train(gpu,args):
         else: 
             iterations = trainer.resume(args.saved_model_dir, args)
 
+    gc.collect()
+    torch.cuda.empty_cache()
     while True:
 
         for  (images_a, images_b) in zip(train_loader_a, train_loader_b):
@@ -75,7 +77,7 @@ def train(gpu,args):
 
             # Dump training stats in log file
             if (iterations + 1) % args.print_freq == 0:
-                print(f"Iteration: {(iterations + 1):08d}/{args.max_iter}")
+                #print(f"Iteration: {(iterations + 1):08d}/{args.max_iter}")
                 #print(f"rank: {rank}")
                 write_loss(iterations, trainer, train_writer)
 
@@ -103,6 +105,8 @@ def train(gpu,args):
 
             iterations += 1
             
+            gc.collect()
+            torch.cuda.empty_cache()
             if iterations >= args.max_iter:
                 if should_distribute(args.world_size): 
                     dist.destroy_process_group()
