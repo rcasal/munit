@@ -66,7 +66,8 @@ def train(gpu,args):
 
     gc.collect()
     torch.cuda.empty_cache()
-    for iterations in tqdm(range(args.max_iter)):
+    flag_true = True
+    while flag_true:
 
         for  (images_a, images_b) in zip(train_loader_a, train_loader_b):
 
@@ -106,13 +107,14 @@ def train(gpu,args):
 
             #gc.collect()
             #torch.cuda.empty_cache()
-            # iterations += 1
-            # if iterations >= args.max_iter:
-            #     if should_distribute(args.world_size): 
-            #         dist.destroy_process_group()
-            #     sys.exit('Finish training')
+            iterations += 1
+            if iterations >= args.max_iter:
+                if should_distribute(args.world_size): 
+                    dist.destroy_process_group()
+                flag_true = False
+                sys.exit('Finish training')
 
-    if should_distribute(args.world_size): 
-        dist.destroy_process_group()
+    # if should_distribute(args.world_size): 
+    #     dist.destroy_process_group()
 
-    sys.exit('Finish training')
+    # sys.exit('Finish training')
