@@ -70,7 +70,9 @@ def train(gpu,args):
     while flag_true:
 
         for  (images_a, images_b) in zip(train_loader_a, train_loader_b):
+            
             print(f"Iteration: {(iterations + 1):08d}/{args.max_iter}")
+            
             images_a, images_b = images_a.cuda(args.gpu).detach(), images_b.cuda(args.gpu).detach()
             
             #with Timer("Elapsed time in update: %f"):
