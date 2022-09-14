@@ -188,13 +188,12 @@ class MUNIT_Trainer(nn.Module):
         if self.generator_scheduler is not None:
             self.generator_scheduler.step()
 
-    def resume(self, checkpoint_dir, args, ddp_rank=False):
+    def resume(self, checkpoint_dir, args, is_ddp=False):
         """function to resume training"""
-        if ddp_rank is None:
-            map_location = 'cpu'
+        if is_ddp is False:
+            map_location = 'None'
         else:
-            #map_location = {'cuda:%d' % 0: 'cuda:%d' % ddp_rank}
-            map_location = 'cpu'
+            map_location = {'cuda:%d' % 0: 'cuda:%d' % args.gpu}
         # Load generators
         last_model_name = get_model_list(checkpoint_dir, "gen")
         state_dict = torch.load(last_model_name, map_location=map_location)
