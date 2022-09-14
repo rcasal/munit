@@ -9,6 +9,7 @@ from Data_Utils.data_utils import *
 from Training.trainer import *
 from Utils.util_functions import Timer, should_distribute
 from Utils.reporting import write_loss, write_to_images
+from tqdm import tqdm
 
 NODES      = int(os.environ.get('WORLD_SIZE', 1))
 
@@ -65,7 +66,7 @@ def train(gpu,args):
 
     gc.collect()
     torch.cuda.empty_cache()
-    while True:
+    for iterations in tqdm(range(args.max_iter)):
 
         for  (images_a, images_b) in zip(train_loader_a, train_loader_b):
 
@@ -103,11 +104,15 @@ def train(gpu,args):
 
             trainer.module.update_learning_rate() if isDDP(trainer) else trainer.update_learning_rate()
 
-            iterations += 1
-            
-            gc.collect()
-            torch.cuda.empty_cache()
-            if iterations >= args.max_iter:
-                if should_distribute(args.world_size): 
-                    dist.destroy_process_group()
-                sys.exit('Finish training')
+            #gc.collect()
+            #torch.cuda.empty_cache()
+            # iterations += 1
+            # if iterations >= args.max_iter:
+            #     if should_distribute(args.world_size): 
+            #         dist.destroy_process_group()
+            #     sys.exit('Finish training')
+
+    if should_distribute(args.world_size): 
+        dist.destroy_process_group()
+
+    sys.exit('Finish training')
