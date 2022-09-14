@@ -29,12 +29,12 @@ def train(gpu,args):
 
     # Models
     trainer = MUNIT_Trainer(args)
-    trainer = trainer.cuda(args.gpu) 
-
     # recover from checkpoint
     iterations = 0
     if(args.continue_training and os.path.exists(args.saved_model_dir)):
         iterations = trainer.resume(args.saved_model_dir, args)
+
+    trainer = trainer.cuda(args.gpu) 
 
     #setup data
     train_loader_a = get_data_loader_folder(args, os.path.join(args.base_data_dir, args.input_data_dir),

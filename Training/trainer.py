@@ -191,9 +191,10 @@ class MUNIT_Trainer(nn.Module):
     def resume(self, checkpoint_dir, args, ddp_rank=False):
         """function to resume training"""
         if ddp_rank is None:
-            map_location = None
+            map_location = 'cpu'
         else:
-            map_location = {'cuda:%d' % 0: 'cuda:%d' % ddp_rank}
+            #map_location = {'cuda:%d' % 0: 'cuda:%d' % ddp_rank}
+            map_location = 'cpu'
         # Load generators
         last_model_name = get_model_list(checkpoint_dir, "gen")
         state_dict = torch.load(last_model_name, map_location=map_location)
