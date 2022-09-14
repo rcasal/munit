@@ -194,6 +194,7 @@ class MUNIT_Trainer(nn.Module):
         #     map_location = 'None'
         # else:
         #     map_location = {'cuda:%d' % 0: 'cuda:%d' % args.gpu}
+        map_location = 'cuda:{}'.format(args.gpu)
         # Load generators
         last_model_name = get_model_list(checkpoint_dir, "gen")
         state_dict = torch.load(last_model_name, map_location=map_location)
