@@ -200,13 +200,11 @@ class MUNIT_Trainer(nn.Module):
         self.generator_a.load_state_dict(state_dict['a'])
         self.generator_b.load_state_dict(state_dict['b'])
         iterations = int(last_model_name[-11:-3])
-        torch.cuda.empty_cache()
         # Load discriminators
         last_model_name = get_model_list(checkpoint_dir, "dis")
         state_dict = torch.load(last_model_name, map_location=map_location)
         self.dicrimininator_a.load_state_dict(state_dict['a'])
         self.discriminator_b.load_state_dict(state_dict['b'])
-        torch.cuda.empty_cache()
         # Load optimizers
         state_dict = torch.load(os.path.join(checkpoint_dir, 'optimizer.pt'), map_location=map_location)
         self.discrimator_optimizer.load_state_dict(state_dict['dis'])

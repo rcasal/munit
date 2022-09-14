@@ -27,7 +27,14 @@ def train(gpu,args):
     if should_distribute(args.world_size):
         dist.init_process_group(backend=args.backend, init_method='env://', world_size=args.world_size, rank=rank)
 
+    # Models
     trainer = MUNIT_Trainer(args)
+    trainer = trainer.cuda(args.gpu) 
+
+    # recover from checkpoint
+    iterations = 0
+    if(args.continue_training and os.path.exists(args.saved_model_dir)):
+        iterations = trainer.resume(args.saved_model_dir, args)
 
     #setup data
     train_loader_a = get_data_loader_folder(args, os.path.join(args.base_data_dir, args.input_data_dir),
@@ -45,7 +52,7 @@ def train(gpu,args):
     train_writer = tensorboardX.SummaryWriter(os.path.join(output_path + "/Loss", model_name))
 
     # Models to device and DDP setting
-    trainer = trainer.cuda(args.gpu) 
+    #trainer = trainer.cuda(args.gpu) 
     if is_distributed():
         trainer = nn.parallel.DistributedDataParallel(trainer, device_ids=[args.gpu])
     
@@ -55,13 +62,13 @@ def train(gpu,args):
     train_display_images_b = torch.stack([train_loader_b.dataset[i]
         for i in range(args.display_size)]).cuda(args.gpu)
     
-    # recover from checkpoint
-    iterations = 0
-    if(args.continue_training and os.path.exists(args.saved_model_dir)):
-        if isDDP(trainer):
-            iterations = trainer.module.resume(args.saved_model_dir, args)  
-        else: 
-            iterations = trainer.resume(args.saved_model_dir, args)
+    # # recover from checkpoint
+    # iterations = 0
+    # if(args.continue_training and os.path.exists(args.saved_model_dir)):
+    #     if isDDP(trainer):
+    #         iterations = trainer.module.resume(args.saved_model_dir, args)  
+    #     else: 
+    #         iterations = trainer.resume(args.saved_model_dir, args)
 
     while True:
 
