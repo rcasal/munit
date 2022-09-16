@@ -79,9 +79,9 @@ def train(gpu,args):
             
             images_a, images_b = images_a.cuda(args.gpu).detach(), images_b.cuda(args.gpu).detach()
             
-            #with Timer("Elapsed time in update: %f"):
-            trainer.module.dis_update(images_a, images_b, args) if isDDP(trainer) else trainer.dis_update(images_a, images_b, args)
-            trainer.module.gen_update(images_a, images_b, args) if isDDP(trainer) else trainer.gen_update(images_a, images_b, args)
+            with Timer("Elapsed time in update: %f"):
+                trainer.module.dis_update(images_a, images_b, args) if isDDP(trainer) else trainer.dis_update(images_a, images_b, args)
+                trainer.module.gen_update(images_a, images_b, args) if isDDP(trainer) else trainer.gen_update(images_a, images_b, args)
 
             # Dump training stats in log file
             if (iterations + 1) % args.print_freq == 0:
