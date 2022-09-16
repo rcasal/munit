@@ -74,7 +74,7 @@ def train(gpu,args):
             if isDDP(trainer):
                 if rank == 0:
                     time_elapsed_training = time.time() - start_time
-                    print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60,):.0f}s {60*time_elapsed_training % 60:.0f}ms'")
+                    print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60):.0f}s {60*time_elapsed_training % 60:.0f}ms'")
                     #print('Step completed in {:.0f}m {:.0f}s {:.0f}ms'.format(time_elapsed_training // 60, time_elapsed_training % 60, 60*time_elapsed_training % 60))
             else: 
                 time_elapsed_training = time.time() - start_time
