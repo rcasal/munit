@@ -50,25 +50,27 @@ def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 
-def transform(files,name,min_shear,max_shear):
+def transform(files,name,min_shear,max_shear,input_data = False):
     
     idx = np.random.randint(len(files))
 
     rand_x = np.random.random()
     rand_y = np.random.random()
     rand_trans = np.random.random()
-    rand_shear = np.random.random() 
-    # rand_contrast = np.random.random()
-    # rand_brightness = np.random.random()
-    # rand_saturation = np.random.random()
+    rand_shear = np.random.random()
+    if input_data:
+      rand_contrast = np.random.random()
+      rand_brightness = np.random.random()
+      rand_saturation = np.random.random()
 
     rand_rot = np.random.randint(-365,365)
     random_x_trans = np.random.randint(-50,50)
     random_y_trans = np.random.randint(-50,50)
     shear_val = np.random.randint(min_shear,max_shear)
-    # contrast_level = np.random.uniform(.5,1.5)
-    # brightness_level = np.random.uniform(.5,1.5)
-    # saturation_level = np.random.uniform(.5,1.5)
+    if input_data:
+      contrast_level = np.random.uniform(.5,1.5)
+      brightness_level = np.random.uniform(.5,1.5)
+      saturation_level = np.random.uniform(.5,1.5)
 
     replace_val = [0,255,0]
 
@@ -93,6 +95,15 @@ def transform(files,name,min_shear,max_shear):
     if rand_trans > .5:
         img_a = T.functional.affine(img_a, 0, [random_x_trans,random_y_trans],1.0,0,fill=replace_val)
 
+    if input_data:
+      if rand_contrast >.5:
+          img_a = T.functional.adjust_contrast(img_a, contrast_level)
+
+      if rand_brightness >.5:
+          img_a = T.functional.adjust_brightness(img_a, brightness_level)
+
+      if rand_saturation >.5:
+          img_a = T.functional.adjust_saturation(img_a, saturation_level)
 
     return img_a
 
@@ -119,7 +130,7 @@ def main():
 
 
     for i in tqdm(range(0,args.num_samples)):
-        img_a = transform(files_A,i,50,70)
+        img_a = transform(files_A,i,50,70,True)
         img_b = transform(files_B,i,50,70)
 
         img_a_name = os.path.join(output_input_path,f'{i:04d}.jpg')
