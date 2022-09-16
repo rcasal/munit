@@ -67,9 +67,9 @@ def train(gpu,args):
     gc.collect()
     torch.cuda.empty_cache()
     flag_true = True
+    start_time = time.time()
     while flag_true:
         
-        start_time = time.time()
         for  (images_a, images_b) in zip(train_loader_a, train_loader_b):
             if isDDP(trainer):
                 if rank == 0:
@@ -80,7 +80,8 @@ def train(gpu,args):
                 time_elapsed_training = time.time() - start_time
                 print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60):.0f}s {60*time_elapsed_training % 60:.0f}ms")
 
-            
+            start_time = time.time()
+
             images_a, images_b = images_a.cuda(args.gpu).detach(), images_b.cuda(args.gpu).detach()
             
             #with Timer("Elapsed time in update: %f"):
@@ -123,9 +124,6 @@ def train(gpu,args):
                     dist.destroy_process_group()
                 flag_true = False
                 sys.exit('Finish training')
-
-            start_time = time.time()
-
 
     # if should_distribute(args.world_size): 
     #     dist.destroy_process_group()
