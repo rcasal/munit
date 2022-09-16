@@ -75,10 +75,10 @@ def train(gpu,args):
                 if rank == 0:
                     time_elapsed_training = time.time() - start_time
                     #print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60):.0f}s {60*time_elapsed_training % 60:.0f}ms'")
-                    print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {time_elapsed_training}.")
+                    print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(1000*time_elapsed_training)}.")
             else: 
                 time_elapsed_training = time.time() - start_time
-                print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {time_elapsed_training}.")
+                print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(1000*time_elapsed_training)}.")
 
             
             images_a, images_b = images_a.cuda(args.gpu).detach(), images_b.cuda(args.gpu).detach()
