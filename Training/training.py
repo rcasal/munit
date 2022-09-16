@@ -67,20 +67,21 @@ def train(gpu,args):
     gc.collect()
     torch.cuda.empty_cache()
     flag_true = True
-    start_time = time.time()
+    start_time = time.time()*1000
     while flag_true:
         
         for  (images_a, images_b) in zip(train_loader_a, train_loader_b):
             if isDDP(trainer):
                 if rank == 0:
-                    time_elapsed_training = time.time() - start_time
-                    print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60):.0f}s {1000*time_elapsed_training % 60:.0f}ms")
-                    #print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(1000*time_elapsed_training)}.")
+                    time_elapsed_training = time.time()*1000 - start_time
+                    #print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60):.0f}s {1000*time_elapsed_training % 60:.0f}ms")
+                    print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training)} ms.")
             else: 
-                time_elapsed_training = time.time() - start_time
-                print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60):.0f}s {60*time_elapsed_training % 60:.0f}ms")
+                time_elapsed_training = time.time()*1000 - start_time
+                #print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60):.0f}s {60*time_elapsed_training % 60:.0f}ms")
+                print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training)} ms.")
 
-            start_time = time.time()
+            start_time = time.time()*1000
 
             images_a, images_b = images_a.cuda(args.gpu).detach(), images_b.cuda(args.gpu).detach()
             
