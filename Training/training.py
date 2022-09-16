@@ -1,6 +1,6 @@
 """File that defines the main training loop"""
 import sys
-
+import time
 import torch
 import torch.distributed as dist
 import tensorboardX
@@ -70,18 +70,22 @@ def train(gpu,args):
     while flag_true:
 
         for  (images_a, images_b) in zip(train_loader_a, train_loader_b):
-            
+            start_time = time.time()
             if isDDP(trainer):
                 if rank == 0:
-                    print(f"Iteration: {(iterations + 1):08d}/{args.max_iter}")
+                    time_elapsed_training = time.time() - start_time
+                    print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60,):.0f}s {60*time_elapsed_training % 60:.0f}ms'")
+                    #print('Step completed in {:.0f}m {:.0f}s {:.0f}ms'.format(time_elapsed_training // 60, time_elapsed_training % 60, 60*time_elapsed_training % 60))
             else: 
-                print(f"Iteration: {(iterations + 1):08d}/{args.max_iter}")
+                time_elapsed_training = time.time() - start_time
+                print(f"Iteration {(iterations + 1):08d}/{args.max_iter} completed in {(time_elapsed_training // 60):.0f}m {(time_elapsed_training % 60,):.0f}s {60*time_elapsed_training % 60:.0f}ms'")
+
             
             images_a, images_b = images_a.cuda(args.gpu).detach(), images_b.cuda(args.gpu).detach()
             
-            with Timer("Elapsed time in update: %f"):
-                trainer.module.dis_update(images_a, images_b, args) if isDDP(trainer) else trainer.dis_update(images_a, images_b, args)
-                trainer.module.gen_update(images_a, images_b, args) if isDDP(trainer) else trainer.gen_update(images_a, images_b, args)
+            #with Timer("Elapsed time in update: %f"):
+            trainer.module.dis_update(images_a, images_b, args) if isDDP(trainer) else trainer.dis_update(images_a, images_b, args)
+            trainer.module.gen_update(images_a, images_b, args) if isDDP(trainer) else trainer.gen_update(images_a, images_b, args)
 
             # Dump training stats in log file
             if (iterations + 1) % args.print_freq == 0:
